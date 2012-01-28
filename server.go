@@ -53,7 +53,7 @@ func (s *Server) acceptConn(l net.Listener) os.Error {
 
 		if e != nil {
 			// XXX gonna need locking
-			s.charMap[ch] = nil
+			s.charMap[ch] = nil, false
 			fmt.Println("Connection closed: ", e)
 			return e
 		}
@@ -73,7 +73,7 @@ func (s *Server) SendToAllConnections(str string) {
 	for _, ch := range s.charMap {
 		_, e := fmt.Fprint(ch, str)
 		if e != nil {
-			s.charMap[ch] = nil
+			s.charMap[ch] = nil, false
 			fmt.Println("Connection closed: ", e)
 		}
 	}
