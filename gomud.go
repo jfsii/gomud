@@ -2,22 +2,16 @@ package main
 
 import (
 	"fmt"
-	"net"
 )
 
-func connHandler(conn net.Conn) {
-	fmt.Println("Accepting connection from: ", conn)
-}
+const (
+	PORT = 6060
+)
 
 func main() {
-
 	fmt.Println("go Mud()")
-
-	s := NewServer(6060)
-
+	s := NewServer(PORT)
 	fmt.Println("Launching new server on port: ", s.Port)
-
 	go s.Run()
-
 	<-s.shutdown
 }

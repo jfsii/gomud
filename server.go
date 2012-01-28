@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"log"
 	"net"
 	"os"
 )
@@ -10,12 +12,12 @@ type Server struct {
 	Port           uint16
 	acceptNextConn chan bool
 	shutdown       chan bool
-	connMap        map[net.Conn]net.Conn
+	charMap        map[*Character]*Character
 }
 
 func NewServer(port uint16) *Server {
 	return &Server{Port: port, acceptNextConn: make(chan bool, 1),
-		shutdown: make(chan bool, 1), connMap: make(map[net.Conn]net.Conn)}
+		shutdown: make(chan bool, 1), charMap: make(map[*Character]*Character)}
 }
 
 func (s *Server) Shutdown() {
@@ -29,31 +31,29 @@ func (s *Server) getAddr() string {
 func (s *Server) acceptConn(l net.Listener) os.Error {
 
 	conn, e := l.Accept()
+	log.Printf("Accepted connection.")
 
 	if e != nil {
 		return e
 	}
 
-	defer conn.Close()
+	ch := NewCharacter("foo", conn)
+	defer ch.Close()
 
 	s.acceptNextConn <- true
 
 	// XXX gonna need locking
-	s.connMap[conn] = conn
+	s.charMap[ch] = ch
 
-	fmt.Fprintln(conn, "Hello World!")
-
-	buf := make([]byte, 256)
+	fmt.Fprintln(ch, "Hello World!")
 
 	for {
-
-		readlen, e := conn.Read(buf)
+		bufr := bufio.NewReader(ch)
+		buf, e := bufr.ReadString('\n')
 
 		if e != nil {
-
 			// XXX gonna need locking
-			s.connMap[conn] = nil
-
+			s.charMap[ch] = nil
 			fmt.Println("Connection closed: ", e)
 			return e
 		}
@@ -62,15 +62,21 @@ func (s *Server) acceptConn(l net.Listener) os.Error {
 			os.Exit(1)
 		}
 
-		for _, value := range s.connMap {
-			fmt.Fprint(value, string(buf[:readlen]))
-
-		}
-
-		fmt.Println(readlen, string(buf[:readlen]))
+		s.SendToAllConnections(buf)
+		fmt.Print(buf)
 	}
 
 	return nil
+}
+
+func (s *Server) SendToAllConnections(str string) {
+	for _, ch := range s.charMap {
+		_, e := fmt.Fprint(ch, str)
+		if e != nil {
+			s.charMap[ch] = nil
+			fmt.Println("Connection closed: ", e)
+		}
+	}
 }
 
 func (s *Server) Run() os.Error {

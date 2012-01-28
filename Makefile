@@ -1,8 +1,12 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=gomud
-GOFILES=\
-	server.go\
-        gomud.go\
+TARG=gm
+GOFMT=gofmt
+SRC=server.go gomud.go character.go
+
+GOFILES=${SRC}
 
 include $(GOROOT)/src/Make.cmd
+
+format:
+	${GOFMT} -w ${SRC}
