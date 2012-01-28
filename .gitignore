@@ -1,4 +1,6 @@
 *.[568ao]
 *.so
 [568a].out
-gomud
+gm
+_go_.8
+_go_.6
