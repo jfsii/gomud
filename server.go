@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"os"
 )
@@ -31,7 +30,7 @@ func (s *Server) getAddr() string {
 func (s *Server) acceptConn(l net.Listener) error {
 
 	conn, e := l.Accept()
-	log.Printf("Accepted connection.")
+	Log.Std("Accepted connection.")
 
 	if e != nil {
 		return e
@@ -54,7 +53,7 @@ func (s *Server) acceptConn(l net.Listener) error {
 		if e != nil {
 			// XXX gonna need locking
 			delete(s.charMap, ch)
-			log.Printf("Connection closed: ", e)
+			Log.Std("Connection closed: ", e)
 			return e
 		}
 
@@ -74,7 +73,7 @@ func (s *Server) SendToAllConnections(str string) {
 		_, e := fmt.Fprint(ch, str)
 		if e != nil {
 			delete(s.charMap, ch)
-			log.Printf("Connection closed: ", e)
+			Log.Std("Connection closed: ", e)
 		}
 	}
 }
@@ -86,7 +85,7 @@ func (s *Server) Run() error {
 	l, e := net.Listen("tcp", tcpAddr)
 
 	if e != nil {
-		log.Printf("Unable to listen: ", e)
+		Log.Std("Unable to listen: ", e)
 		return e
 	}
 
