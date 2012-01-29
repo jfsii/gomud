@@ -1,9 +1,6 @@
 package main
 
-import (
-	"net"
-	"os"
-)
+import "net"
 
 type Character struct {
 	name string
@@ -14,11 +11,11 @@ func NewCharacter(name string, conn net.Conn) *Character {
 	return &Character{name, conn}
 }
 
-func (ch *Character) Read(p []byte) (n int, err os.Error) {
+func (ch *Character) Read(p []byte) (n int, err error) {
 	return ch.conn.Read(p)
 }
 
-func (ch *Character) Write(p []byte) (n int, err os.Error) {
+func (ch *Character) Write(p []byte) (n int, err error) {
 	return ch.conn.Write(p)
 }
 

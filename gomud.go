@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+    "log"
 )
 
 const (
@@ -9,9 +9,9 @@ const (
 )
 
 func main() {
-	fmt.Println("go Mud()")
+	log.Printf("go Mud() init")
 	s := NewServer(PORT)
-	fmt.Println("Launching new server on port: ", s.Port)
+	log.Println("Launching new server on port: ", s.Port)
 	go s.Run()
-	<-s.shutdown
+    <-s.shutdown
 }

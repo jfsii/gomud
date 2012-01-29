@@ -28,7 +28,7 @@ func (s *Server) getAddr() string {
 	return fmt.Sprintf(":%v", s.Port)
 }
 
-func (s *Server) acceptConn(l net.Listener) os.Error {
+func (s *Server) acceptConn(l net.Listener) error {
 
 	conn, e := l.Accept()
 	log.Printf("Accepted connection.")
@@ -45,7 +45,7 @@ func (s *Server) acceptConn(l net.Listener) os.Error {
 	// XXX gonna need locking
 	s.charMap[ch] = ch
 
-	fmt.Fprintln(ch, "Hello World!")
+	fmt.Fprintln(ch, "こにちは！ Welcome to GoMUD.")
 
 	for {
 		bufr := bufio.NewReader(ch)
@@ -53,13 +53,13 @@ func (s *Server) acceptConn(l net.Listener) os.Error {
 
 		if e != nil {
 			// XXX gonna need locking
-			s.charMap[ch] = nil, false
-			fmt.Println("Connection closed: ", e)
+			delete(s.charMap, ch)
+			log.Printf("Connection closed: ", e)
 			return e
 		}
 
 		if buf[0] == 'x' {
-			os.Exit(1)
+			s.Shutdown()
 		}
 
 		s.SendToAllConnections(buf)
@@ -73,20 +73,20 @@ func (s *Server) SendToAllConnections(str string) {
 	for _, ch := range s.charMap {
 		_, e := fmt.Fprint(ch, str)
 		if e != nil {
-			s.charMap[ch] = nil, false
-			fmt.Println("Connection closed: ", e)
+			delete(s.charMap, ch)
+			log.Printf("Connection closed: ", e)
 		}
 	}
 }
 
-func (s *Server) Run() os.Error {
+func (s *Server) Run() error {
 
 	tcpAddr := s.getAddr()
 
 	l, e := net.Listen("tcp", tcpAddr)
 
 	if e != nil {
-		fmt.Println("Unable to listen: ", e)
+		log.Printf("Unable to listen: ", e)
 		return e
 	}
 
