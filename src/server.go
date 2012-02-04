@@ -5,18 +5,19 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"player"
 )
 
 type Server struct {
 	Port           uint16
 	acceptNextConn chan bool
 	shutdown       chan bool
-	charMap        map[*Character]*Character
+	charMap        map[*player.Player]bool
 }
 
 func NewServer(port uint16) *Server {
 	return &Server{Port: port, acceptNextConn: make(chan bool, 1),
-		shutdown: make(chan bool, 1), charMap: make(map[*Character]*Character)}
+		shutdown: make(chan bool, 1), charMap: make(map[*player.Player]bool)}
 }
 
 func (s *Server) Shutdown() {
@@ -36,13 +37,13 @@ func (s *Server) acceptConn(l net.Listener) error {
 		return e
 	}
 
-	ch := NewCharacter("foo", conn)
+	ch := player.NewPlayer("foo", conn)
 	defer ch.Close()
 
 	s.acceptNextConn <- true
 
 	// XXX gonna need locking
-	s.charMap[ch] = ch
+	s.charMap[ch] = true
 
 	fmt.Fprintln(ch, "こにちは！ Welcome to GoMUD.")
 
@@ -69,7 +70,7 @@ func (s *Server) acceptConn(l net.Listener) error {
 }
 
 func (s *Server) SendToAllConnections(str string) {
-	for _, ch := range s.charMap {
+	for ch := range s.charMap {
 		_, e := fmt.Fprint(ch, str)
 		if e != nil {
 			delete(s.charMap, ch)
