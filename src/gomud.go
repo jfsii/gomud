@@ -1,4 +1,3 @@
-//target:gomud
 package main
 
 import (
