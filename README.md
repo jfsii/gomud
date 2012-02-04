@@ -1,6 +1,5 @@
 GoMUD - a basic MUD server in Go 
 ================================
-
 GoMUD is a WIP, currently it is a basic echo server. At the moment
 go-gb is the supported way of building the server. Basically it's a
 project to assist us in learning the Go programming language, but
@@ -16,3 +15,8 @@ The following commands will download, build, install, and start GoMUD
 'cd gomud'
 './run.sh'
 
+TODOs
+-----
+* Proper telnet protocol negotiation
+* Database interface (SQLite?)
+* Lots of other stuff
