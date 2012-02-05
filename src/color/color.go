@@ -4,6 +4,10 @@
 */
 package color
 
+import (
+	"fmt"
+)
+
 const (
 	Escape     = "\x1b"
 	Reset      = Escape + "[0m"
@@ -31,4 +35,17 @@ const (
 	BgMagenta = Escape + "[45m"
 	BgCyan    = Escape + "[46m"
 	BgWhite   = Escape + "[47m"
+
+	FOREGROUND = 0
+	BACKGROUND = 1
 )
+
+var colorFormat = map[byte]string{
+	FOREGROUND: Escape + "[38;5;%dm",
+	BACKGROUND: Escape + "[48;5;%dm",
+}
+
+func GetRgbColor(level, r, g, b byte) string {
+	col := 16 + (r * 36) + (g * 6) + b
+	return fmt.Sprintf(colorFormat[level], col)
+}
