@@ -2,10 +2,39 @@ package main
 
 import (
 	"bufio"
+	"encoding/binary"
 	"fmt"
 	"net"
 	"os"
 	"player"
+)
+
+const (
+	// Telnet protocol definitions.
+	IAC   byte = 255
+	DONT  byte = 254
+	DO    byte = 253
+	WONT  byte = 252
+	WILL  byte = 251
+	SB    byte = 250
+	GA    byte = 249
+	EL    byte = 248
+	EC    byte = 247
+	ATT   byte = 246
+	AO    byte = 245
+	IP    byte = 244
+	BREAK byte = 243
+	DK    byte = 242
+	NOP   byte = 241
+	SE    byte = 240
+	EOR   byte = 239
+	ABORT byte = 238
+	SUSP  byte = 237
+	EOF   byte = 236
+
+	// Telnet options.
+	BINARY byte = 0
+	ECHO   byte = 1
 )
 
 type Server struct {
@@ -28,6 +57,19 @@ func (s *Server) getAddr() string {
 	return fmt.Sprintf(":%v", s.Port)
 }
 
+func sendMessage(ch *player.Player, data ...byte) error {
+    slice := make([]byte, len(data))
+    for _, d := range data {
+        slice = append(slice, d)
+    }
+
+    return binary.Write(ch, binary.BigEndian, slice)
+}
+
+func negotiate(ch *player.Player) {
+    sendMessage(ch, IAC, WILL, ECHO)
+}
+
 func (s *Server) acceptConn(l net.Listener) error {
 
 	conn, e := l.Accept()
@@ -44,7 +86,6 @@ func (s *Server) acceptConn(l net.Listener) error {
 
 	// XXX gonna need locking
 	s.charMap[ch] = true
-
 	fmt.Fprintln(ch, "こにちは！ Welcome to GoMUD.")
 
 	for {
