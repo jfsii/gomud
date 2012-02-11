@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"color"
+	"gomud/color"
 	"log"
 )
 

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"logger"
+	"gomud/logger"
 )
 
 const (
