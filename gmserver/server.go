@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"gomud/player"
+	"github.com/jfsherman/gomud/player"
 )
 
 const (
